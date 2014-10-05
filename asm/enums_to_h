@@ -1,0 +1,65 @@
+#!/bin/sh
+
+# tmp file 1 is the enum definitions
+#   i.e.   enum $set { $def, $def, $def };
+# tmp file 2 is the width array
+#   i.e.   int ${set}_widths[] = { $width, $width, $width };
+# tmp file 3 is the string array
+#   i.e.   char * ${set}_names[] = { "$name", "$name" };
+
+exec < $1
+exec 5> __tmp_$$_1
+exec 6> __tmp_$$_2
+exec 7> __tmp_$$_3
+
+currset=''
+
+while read a b c d e ; do
+	case x$a in
+	x#)
+		;;
+	xset)
+		# b is set
+		echo extern int ${b}_widths '[];'      1>&5
+		echo extern char '*' ${b}_names '[];'  1>&5
+		echo enum $b {                         1>&5
+		echo int ${b}_widths '[]' = {          1>&6
+		echo char '*' ${b}_names '[]' = {      1>&7
+		;;
+	xdef)
+		# b is enum
+		# c is width
+		# d is string
+		echo -n $b ', '             1>&5
+		echo -n $c ', '             1>&6
+		echo -n '"'$d'", '          1>&7
+		;;
+	xendset)
+		# no args
+		echo ''      1>&5
+		echo ''      1>&6
+		echo '0'     1>&7
+		echo '};'    1>&5
+		echo '};'    1>&6
+		echo '};'    1>&7
+		;;
+	x)
+		;;
+	*)
+		echo unknown command $a
+		exit 1
+		;;
+	esac
+done
+
+exec 5>&-
+exec 6>&-
+exec 7>&-
+
+if [ $2 != "-" ] ; then
+    cat __tmp_$$_1  > $2
+fi
+if [ $3 != "-" ] ; then
+    cat  __tmp_$$_2 __tmp_$$_3 > $3
+fi
+rm __tmp_$$_1 __tmp_$$_2 __tmp_$$_3

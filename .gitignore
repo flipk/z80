@@ -1,0 +1,12 @@
+*.o
+asm/bin
+asm/instr_enums.c
+asm/instr_enums.h
+asm/lex.yy.c
+asm/y.output
+asm/y.tab.c
+asm/y.tab.h
+asm/z3
+asm/z80asm
+asm/z80link
+asm/z80nm
